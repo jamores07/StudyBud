@@ -8,7 +8,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse
 
 from .models import *
-from .forms import RoomForm
+from .forms import *
 
 # Create your views here.
 
@@ -68,6 +68,21 @@ def loginUser(request):
 def logoutUser(request):
     logout(request)
     return redirect('home')
+
+
+@login_required(login_url='login')
+def updateUser(request):
+    user = request.user
+    form = UserForm(instance=user)
+
+    if request.method == 'POST':
+        form = UserForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('user-profile', pk=user.id)
+
+    context = {'form': form}
+    return render(request, 'base/update-user.html', context)
 
 
 def userProfile(request, pk):
